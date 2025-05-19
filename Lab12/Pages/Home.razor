@@ -1,0 +1,144 @@
+﻿@page "/"
+@using Models
+
+@inject Blazored.LocalStorage.ISyncLocalStorageService localStorage
+
+<h1>Ingreso de Productos</h1>
+
+<EditForm Model="@producto" OnValidSubmit="@Guardar">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="container mt-4">
+        <div class="row mt-3">
+            <div class="col col-4">
+                <label for="codigo" class="form-label">Codigo: </label>
+                <InputText id="codigo" class="form-control" @bind-Value="producto.Codigo" />
+                <ValidationMessage For="() => producto.Codigo" />
+            </div>
+            <div class="col col-8">
+                <label for="nombre" class="form-label">Nombre:</label>
+                <InputText id="nombre" class="form-control" @bind-Value="producto.Nombre" />
+                <ValidationMessage For="() => producto.Nombre" />
+            </div>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col">
+                <label for="tipo" class="form-label">Tipo:</label>
+                <InputSelect id="tipo" class="form-select" @bind-Value="producto.Tipo">
+                    <option value=""> Seleccione una categoria</option>
+                    <option value="Alimento">Alimento</option>
+                    <option value="Electronico">Electrónico</option>
+                    <option value="Libro">Libro</option>
+                </InputSelect>
+                <ValidationMessage For="() => producto.Tipo" />
+            </div>
+            <div class="col">
+                <label for="descripcion" class="form-label">Descripcion:</label>
+                <InputTextArea id="descripcion" class="form-control" @bind-Value="producto.Descripcion" />
+                <ValidationMessage For="() => producto.Descripcion" />
+            </div>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col">
+                <label for="precio_compra" class="form-label">Precio Compra:</label>
+                <InputNumber id="precio_compra" class="form-control" @bind-Value="producto.Precio_Compra"/>                               
+                <ValidationMessage For="() => producto.Precio_Compra" />
+            </div>
+            <div class="col">
+                <label for="precio_venta" class="form-label">Precio Venta:</label>
+                <InputNumber id="precio_venta" class="form-control" @bind-Value="producto.Precio_Venta" />
+                <ValidationMessage For="() => producto.Precio_Venta" />
+            </div>
+        </div>
+    @if (producto.Tipo == "Alimento")
+    {
+        <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label>Fecha de Vencimiento:</label>
+                    <InputDate id="FechaVencimiento" class="form-control" @bind-Value="fechaVencimiento"/>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label>Unidad de Medida:</label>
+                    <InputText class="form-control" @bind-Value="unidadMedida" />
+                </div>
+        </div>
+    }
+    else if (producto.Tipo == "Electronico")
+    {
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label>Garantía (meses):</label>
+                    <InputNumber class="form-control" @bind-Value="tiempoGarantia" />
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label>Voltaje:</label>
+                    <InputNumber class="form-control" @bind-Value="voltaje" />
+                </div>
+            </div>
+    }
+    else if (producto.Tipo == "Libro")
+    {
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label>Editorial:</label>
+                    <InputText class="form-control" @bind-Value="editorial" />
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label>Categoría:</label>
+                    <InputText class="form-control" @bind-Value="categoria" />
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label>Autor:</label>
+                    <InputText class="form-control" @bind-Value="autor" />
+                </div>
+            </div>
+    }
+        <div class="row mt-3 text-center">
+            <div class="col">
+                <button class="btn btn-secondary" type="submit">Guardar</button>
+            </div>
+        </div>   
+    </div>
+
+</EditForm>
+
+@* Se manda a llamar al componente llamado StarshipComponent que está en la carpeta componentes 
+    y de esa manera poder reutilizar el mismo código en varios lugares el proyecto
+*@
+<Lab12.Components.StarshipComponent></Lab12.Components.StarshipComponent>
+
+@code{
+	private Producto producto = new Producto();
+    private List<Producto> productos = new List<Producto>();
+
+    private DateTime fechaVencimiento = DateTime.Today;
+    private string unidadMedida = "";
+
+    private int tiempoGarantia;
+    private int voltaje;
+
+    private string editorial = "";
+    private string categoria = "";
+    private string autor = "";
+    private void Guardar()
+    {
+        productos.Add(producto);
+        // Guardar la lista de starships en LocalStorage como JSON
+        localStorage.SetItem("productos", productos);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Recuperar la lista de starships desde LocalStorage a una variable var
+        var productoGuardado = localStorage.GetItem<List<Producto>>("productos");
+
+        // Validar si la lista fue recuperada correctamente, copiarla a la lista
+        if (productoGuardado != null)
+        {
+            productos = productoGuardado;
+        }
+    }
+}
